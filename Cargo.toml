@@ -1,0 +1,34 @@
+[package]
+name = "strata-mcp"
+version = "0.5.3"
+edition = "2021"
+description = "MCP server for Strata database"
+license = "MIT"
+repository = "https://github.com/strata-systems/strata-mcp"
+readme = "README.md"
+keywords = ["mcp", "database", "ai", "agents", "strata"]
+categories = ["database", "development-tools"]
+
+[[bin]]
+name = "strata-mcp"
+path = "src/main.rs"
+
+[dependencies]
+# Use git dependency during development, switch to crates.io version on release
+stratadb = { git = "https://github.com/strata-systems/strata-core", branch = "main" }
+# stratadb = "0.5"  # Uncomment when published to crates.io
+
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["rt", "io-std", "sync", "io-util", "macros"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+thiserror = "1.0"
+
+[dev-dependencies]
+tempfile = "3.8"
+
+[profile.release]
+lto = true
+codegen-units = 1
