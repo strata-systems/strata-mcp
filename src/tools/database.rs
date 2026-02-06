@@ -16,22 +16,26 @@ pub fn tools() -> Vec<ToolDef> {
     vec![
         ToolDef::new(
             "strata_db_ping",
-            "Ping the database to check connectivity",
+            "Ping the database to check connectivity and get version info. \
+             Use this as a health check before starting work.",
             schema!(object {}),
         ),
         ToolDef::new(
             "strata_db_info",
-            "Get database information including version, uptime, and statistics",
+            "Get database statistics including version, uptime in seconds, branch count, \
+             and total keys. Useful for monitoring and capacity planning.",
             schema!(object {}),
         ),
         ToolDef::new(
             "strata_db_flush",
-            "Flush pending writes to disk for durability",
+            "Force pending writes to disk immediately. Normally writes are buffered \
+             for performance; use this before critical operations or shutdown.",
             schema!(object {}),
         ),
         ToolDef::new(
             "strata_db_compact",
-            "Trigger storage compaction to reclaim space",
+            "Trigger storage compaction to reclaim disk space from deleted data. \
+             This is done automatically but can be triggered manually if needed.",
             schema!(object {}),
         ),
     ]

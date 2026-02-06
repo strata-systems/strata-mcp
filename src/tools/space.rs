@@ -16,19 +16,29 @@ pub fn tools() -> Vec<ToolDef> {
     vec![
         ToolDef::new(
             "strata_space_list",
-            "List all spaces in the current branch.",
+            "List all spaces in the current branch. Spaces are logical partitions \
+             within a branch that isolate data by namespace.",
             schema!(object {}),
         ),
         ToolDef::new(
             "strata_space_create",
-            "Create a new space explicitly.",
+            "Create a new space explicitly. Spaces are auto-created on first write, \
+             but this allows pre-creation for organizational purposes.",
+            schema!(object {
+                required: { "space": string }
+            }),
+        ),
+        ToolDef::new(
+            "strata_space_exists",
+            "Check if a space exists in the current branch. Returns true/false.",
             schema!(object {
                 required: { "space": string }
             }),
         ),
         ToolDef::new(
             "strata_space_delete",
-            "Delete a space. Must be empty unless force=true.",
+            "Delete a space and all its data. Must be empty unless force=true. \
+             Cannot delete the 'default' space.",
             schema!(object {
                 required: { "space": string },
                 optional: { "force": boolean }
@@ -36,7 +46,8 @@ pub fn tools() -> Vec<ToolDef> {
         ),
         ToolDef::new(
             "strata_space_switch",
-            "Switch the session's current space context. All subsequent operations will use this space.",
+            "Switch the session's current space context. All subsequent operations \
+             will use this space until switched again. Use strata_space_list to see available spaces.",
             schema!(object {
                 required: { "space": string }
             }),
@@ -63,6 +74,17 @@ pub fn dispatch(
             let space = get_string_arg(&args, "space")?;
 
             let cmd = Command::SpaceCreate {
+                branch: session.branch_id(),
+                space,
+            };
+            let output = session.execute(cmd)?;
+            Ok(output_to_json(output))
+        }
+
+        "strata_space_exists" => {
+            let space = get_string_arg(&args, "space")?;
+
+            let cmd = Command::SpaceExists {
                 branch: session.branch_id(),
                 space,
             };

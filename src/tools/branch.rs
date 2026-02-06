@@ -18,56 +18,64 @@ pub fn tools() -> Vec<ToolDef> {
     vec![
         ToolDef::new(
             "strata_branch_create",
-            "Create a new empty branch. Optionally specify branch_id (UUID or name).",
+            "Create a new empty branch for isolated development or experimentation. \
+             Optionally specify branch_id (name or UUID). Returns the new branch info.",
             schema!(object {
                 optional: { "branch_id": string }
             }),
         ),
         ToolDef::new(
             "strata_branch_get",
-            "Get information about a specific branch.",
+            "Get detailed information about a branch including status, creation time, \
+             parent branch, and version. Use strata_branch_list to discover branch names.",
             schema!(object {
                 required: { "branch": string }
             }),
         ),
         ToolDef::new(
             "strata_branch_list",
-            "List all branches with optional filtering and pagination.",
+            "List all branches in the database. Returns array of branch info objects. \
+             Use limit and offset for pagination.",
             schema!(object {
                 optional: { "limit": integer, "offset": integer }
             }),
         ),
         ToolDef::new(
             "strata_branch_exists",
-            "Check if a branch exists. Returns true/false.",
+            "Quick check if a branch exists. Returns true/false. Faster than strata_branch_get \
+             when you only need to verify existence.",
             schema!(object {
                 required: { "branch": string }
             }),
         ),
         ToolDef::new(
             "strata_branch_delete",
-            "Delete a branch and all its data. Cannot delete the 'default' branch.",
+            "Permanently delete a branch and all its data. Cannot delete the 'default' branch. \
+             This action cannot be undone.",
             schema!(object {
                 required: { "branch": string }
             }),
         ),
         ToolDef::new(
             "strata_branch_fork",
-            "Fork the current branch to a new branch, copying all data.",
+            "Create a copy of the current branch with all its data. Use this to experiment \
+             with changes without affecting the original. Use strata_branch_switch first if needed.",
             schema!(object {
                 required: { "destination": string }
             }),
         ),
         ToolDef::new(
             "strata_branch_diff",
-            "Compare two branches and return their differences.",
+            "Compare two branches and see what's different. Returns added, removed, and \
+             modified entries. Useful before merging to preview changes.",
             schema!(object {
                 required: { "branch_a": string, "branch_b": string }
             }),
         ),
         ToolDef::new(
             "strata_branch_merge",
-            "Merge a source branch into the current branch. Strategy: 'last_writer_wins' or 'strict'.",
+            "Merge changes from source branch into the current branch. Strategy 'last_writer_wins' \
+             (default) resolves conflicts by timestamp; 'strict' fails on any conflict.",
             schema!(object {
                 required: { "source": string },
                 optional: { "strategy": string }
@@ -75,7 +83,8 @@ pub fn tools() -> Vec<ToolDef> {
         ),
         ToolDef::new(
             "strata_branch_switch",
-            "Switch the session's current branch context. All subsequent operations will use this branch.",
+            "Switch the session to a different branch. All subsequent operations (kv, json, etc.) \
+             will operate on this branch until switched again.",
             schema!(object {
                 required: { "branch": string }
             }),

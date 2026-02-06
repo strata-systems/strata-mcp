@@ -3,10 +3,12 @@
 //! Provides the infrastructure for registering and dispatching MCP tools.
 
 pub mod branch;
+pub mod bundle;
 pub mod database;
 pub mod event;
 pub mod json;
 pub mod kv;
+pub mod search;
 pub mod space;
 pub mod state;
 pub mod txn;
@@ -61,6 +63,8 @@ impl ToolRegistry {
         tools.extend(branch::tools());
         tools.extend(vector::tools());
         tools.extend(txn::tools());
+        tools.extend(search::tools());
+        tools.extend(bundle::tools());
 
         Self { tools }
     }
@@ -96,6 +100,10 @@ impl ToolRegistry {
             vector::dispatch(session, name, args)
         } else if name.starts_with("strata_txn_") {
             txn::dispatch(session, name, args)
+        } else if name.starts_with("strata_search") {
+            search::dispatch(session, name, args)
+        } else if name.starts_with("strata_bundle_") {
+            bundle::dispatch(session, name, args)
         } else {
             Err(McpError::UnknownTool(name.to_string()))
         }
