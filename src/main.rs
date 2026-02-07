@@ -38,6 +38,11 @@ struct Args {
     #[arg(long)]
     read_only: bool,
 
+    /// Enable automatic text embedding for semantic search.
+    /// Model files are downloaded automatically on first use.
+    #[arg(long)]
+    auto_embed: bool,
+
     /// Enable debug logging to stderr.
     #[arg(long, short)]
     verbose: bool,
@@ -65,6 +70,19 @@ fn main() {
         std::process::exit(1);
     }
 
+    // Auto-download model files when --auto-embed is requested (best-effort).
+    #[cfg(feature = "embed")]
+    if args.auto_embed {
+        match strata_intelligence::embed::download::ensure_model() {
+            Ok(path) => {
+                tracing::info!("Model files ready at {}", path.display());
+            }
+            Err(e) => {
+                eprintln!("Warning: failed to download model files: {}", e);
+            }
+        }
+    }
+
     // Open the database
     let db = if args.cache {
         match Strata::cache() {
@@ -76,11 +94,13 @@ fn main() {
         }
     } else {
         let path = args.db.as_ref().unwrap();
-        let opts = if args.read_only {
-            OpenOptions::new().access_mode(AccessMode::ReadOnly)
-        } else {
-            OpenOptions::default()
-        };
+        let mut opts = OpenOptions::new();
+        if args.read_only {
+            opts = opts.access_mode(AccessMode::ReadOnly);
+        }
+        if args.auto_embed {
+            opts = opts.auto_embed(true);
+        }
 
         match Strata::open_with(path, opts) {
             Ok(db) => db,

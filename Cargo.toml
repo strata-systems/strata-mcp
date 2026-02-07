@@ -13,10 +13,17 @@ categories = ["database", "development-tools"]
 name = "strata-mcp"
 path = "src/main.rs"
 
+[features]
+default = ["embed"]
+embed = ["stratadb/embed", "dep:strata-intelligence"]
+
 [dependencies]
 # Use git dependency during development, switch to crates.io version on release
-stratadb = { git = "https://github.com/strata-systems/strata-core", branch = "main" }
+stratadb = { git = "https://github.com/stratadb-labs/strata-core", branch = "main" }
 # stratadb = "0.5"  # Uncomment when published to crates.io
+
+# Intelligence crate for model download (embed feature only)
+strata-intelligence = { git = "https://github.com/stratadb-labs/strata-core", branch = "main", features = ["embed"], optional = true }
 
 clap = { version = "4", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
