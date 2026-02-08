@@ -82,6 +82,7 @@ impl From<StrataError> for McpError {
             StrataError::Serialization { .. } => "SERIALIZATION_ERROR",
             StrataError::Internal { .. } => "INTERNAL_ERROR",
             StrataError::NotImplemented { .. } => "NOT_IMPLEMENTED",
+            StrataError::HistoryUnavailable { .. } => "HISTORY_UNAVAILABLE",
         };
 
         McpError::Strata {

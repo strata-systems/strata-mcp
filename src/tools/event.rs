@@ -25,17 +25,20 @@ pub fn tools() -> Vec<ToolDef> {
         ),
         ToolDef::new(
             "strata_event_get",
-            "Get an event by its sequence number. Returns null if not found.",
+            "Get an event by its sequence number. Returns null if not found. \
+             Pass as_of (microsecond timestamp) for time-travel reads.",
             schema!(object {
-                required: { "sequence": integer }
+                required: { "sequence": integer },
+                optional: { "as_of": integer }
             }),
         ),
         ToolDef::new(
             "strata_event_list",
-            "List events of a specific type with optional pagination.",
+            "List events of a specific type with optional pagination. \
+             Pass as_of (microsecond timestamp) for time-travel reads.",
             schema!(object {
                 required: { "event_type": string },
-                optional: { "limit": integer, "after_sequence": integer }
+                optional: { "limit": integer, "after_sequence": integer, "as_of": integer }
             }),
         ),
         ToolDef::new(
@@ -69,11 +72,13 @@ pub fn dispatch(
 
         "strata_event_get" => {
             let sequence = get_u64_arg(&args, "sequence")?;
+            let as_of = get_optional_u64(&args, "as_of");
 
             let cmd = Command::EventGet {
                 branch: session.branch_id(),
                 space: session.space_id(),
                 sequence,
+                as_of,
             };
             let output = session.execute(cmd)?;
             Ok(output_to_json(output))
@@ -83,6 +88,7 @@ pub fn dispatch(
             let event_type = get_string_arg(&args, "event_type")?;
             let limit = get_optional_u64(&args, "limit");
             let after_sequence = get_optional_u64(&args, "after_sequence");
+            let as_of = get_optional_u64(&args, "as_of");
 
             let cmd = Command::EventGetByType {
                 branch: session.branch_id(),
@@ -90,6 +96,7 @@ pub fn dispatch(
                 event_type,
                 limit,
                 after_sequence,
+                as_of,
             };
             let output = session.execute(cmd)?;
             Ok(output_to_json(output))

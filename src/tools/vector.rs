@@ -8,7 +8,7 @@ use serde_json::{Map, Value as JsonValue};
 use stratadb::{BatchVectorEntry, Command, DistanceMetric, FilterOp, MetadataFilter};
 
 use crate::convert::{
-    get_optional_string, get_string_arg, get_u64_arg, get_value_arg,
+    get_optional_string, get_optional_u64, get_string_arg, get_u64_arg, get_value_arg,
     get_vector_arg, json_to_value, output_to_json,
 };
 use crate::error::{McpError, Result};
@@ -29,9 +29,11 @@ pub fn tools() -> Vec<ToolDef> {
         ),
         ToolDef::new(
             "strata_vector_get",
-            "Get a vector by key. Returns the embedding, metadata, and version info.",
+            "Get a vector by key. Returns the embedding, metadata, and version info. \
+             Pass as_of (microsecond timestamp) for time-travel reads.",
             schema!(object {
-                required: { "collection": string, "key": string }
+                required: { "collection": string, "key": string },
+                optional: { "as_of": integer }
             }),
         ),
         ToolDef::new(
@@ -45,7 +47,8 @@ pub fn tools() -> Vec<ToolDef> {
             "strata_vector_search",
             "Search for similar vectors. Returns top-k matches with scores. \
              Filters narrow results by metadata: each filter has field (metadata key), \
-             op (eq|ne|gt|gte|lt|lte|in|contains), and value.",
+             op (eq|ne|gt|gte|lt|lte|in|contains), and value. \
+             Pass as_of (microsecond timestamp) for time-travel reads.",
             serde_json::json!({
                 "type": "object",
                 "properties": {
@@ -68,7 +71,8 @@ pub fn tools() -> Vec<ToolDef> {
                             "required": ["field", "op", "value"]
                         }
                     },
-                    "metric": {"type": "string", "enum": ["cosine", "euclidean", "dot_product"]}
+                    "metric": {"type": "string", "enum": ["cosine", "euclidean", "dot_product"]},
+                    "as_of": {"type": "integer", "description": "Microsecond timestamp for time-travel reads"}
                 },
                 "required": ["collection", "query", "k"]
             }),
@@ -286,12 +290,14 @@ pub fn dispatch(
         "strata_vector_get" => {
             let collection = get_string_arg(&args, "collection")?;
             let key = get_string_arg(&args, "key")?;
+            let as_of = get_optional_u64(&args, "as_of");
 
             let cmd = Command::VectorGet {
                 branch: session.branch_id(),
                 space: session.space_id(),
                 collection,
                 key,
+                as_of,
             };
             let output = session.execute(cmd)?;
             Ok(output_to_json(output))
@@ -317,6 +323,7 @@ pub fn dispatch(
             let k = get_u64_arg(&args, "k")?;
             let filter = parse_filters(&args)?;
             let metric = parse_metric(get_optional_string(&args, "metric").as_deref())?;
+            let as_of = get_optional_u64(&args, "as_of");
 
             let cmd = Command::VectorSearch {
                 branch: session.branch_id(),
@@ -326,6 +333,7 @@ pub fn dispatch(
                 k,
                 filter,
                 metric: Some(metric),
+                as_of,
             };
             let output = session.execute(cmd)?;
             Ok(output_to_json(output))

@@ -25,9 +25,11 @@ pub fn tools() -> Vec<ToolDef> {
         ),
         ToolDef::new(
             "strata_json_get",
-            "Get a value at a JSONPath from a document. Use '$' for the entire document. Returns null if not found.",
+            "Get a value at a JSONPath from a document. Use '$' for the entire document. Returns null if not found. \
+             Pass as_of (microsecond timestamp) for time-travel reads.",
             schema!(object {
-                required: { "key": string, "path": string }
+                required: { "key": string, "path": string },
+                optional: { "as_of": integer }
             }),
         ),
         ToolDef::new(
@@ -39,16 +41,19 @@ pub fn tools() -> Vec<ToolDef> {
         ),
         ToolDef::new(
             "strata_json_list",
-            "List JSON document keys with optional prefix filter and cursor-based pagination.",
+            "List JSON document keys with optional prefix filter and cursor-based pagination. \
+             Pass as_of (microsecond timestamp) for time-travel reads.",
             schema!(object {
-                optional: { "prefix": string, "cursor": string, "limit": integer }
+                optional: { "prefix": string, "cursor": string, "limit": integer, "as_of": integer }
             }),
         ),
         ToolDef::new(
             "strata_json_history",
-            "Get the full version history for a JSON document.",
+            "Get the full version history for a JSON document. \
+             Pass as_of (microsecond timestamp) to get history up to that point.",
             schema!(object {
-                required: { "key": string }
+                required: { "key": string },
+                optional: { "as_of": integer }
             }),
         ),
     ]
@@ -80,12 +85,14 @@ pub fn dispatch(
         "strata_json_get" => {
             let key = get_string_arg(&args, "key")?;
             let path = get_string_arg(&args, "path")?;
+            let as_of = get_optional_u64(&args, "as_of");
 
             let cmd = Command::JsonGet {
                 branch: session.branch_id(),
                 space: session.space_id(),
                 key,
                 path,
+                as_of,
             };
             let output = session.execute(cmd)?;
             Ok(output_to_json(output))
@@ -109,6 +116,7 @@ pub fn dispatch(
             let prefix = get_optional_string(&args, "prefix");
             let cursor = get_optional_string(&args, "cursor");
             let limit = get_optional_u64(&args, "limit").unwrap_or(100);
+            let as_of = get_optional_u64(&args, "as_of");
 
             let cmd = Command::JsonList {
                 branch: session.branch_id(),
@@ -116,6 +124,7 @@ pub fn dispatch(
                 prefix,
                 cursor,
                 limit,
+                as_of,
             };
             let output = session.execute(cmd)?;
             Ok(output_to_json(output))
@@ -123,11 +132,13 @@ pub fn dispatch(
 
         "strata_json_history" => {
             let key = get_string_arg(&args, "key")?;
+            let as_of = get_optional_u64(&args, "as_of");
 
             let cmd = Command::JsonGetv {
                 branch: session.branch_id(),
                 space: session.space_id(),
                 key,
+                as_of,
             };
             let output = session.execute(cmd)?;
             Ok(output_to_json(output))

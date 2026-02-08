@@ -29,9 +29,11 @@ pub fn tools() -> Vec<ToolDef> {
         ToolDef::new(
             "strata_kv_get",
             "Get the value for a key with version info. Returns null if key doesn't exist. \
-             Use strata_kv_get_many to fetch multiple keys in one call.",
+             Use strata_kv_get_many to fetch multiple keys in one call. \
+             Pass as_of (microsecond timestamp) for time-travel reads.",
             schema!(object {
-                required: { "key": string }
+                required: { "key": string },
+                optional: { "as_of": integer }
             }),
         ),
         ToolDef::new(
@@ -45,17 +47,20 @@ pub fn tools() -> Vec<ToolDef> {
         ToolDef::new(
             "strata_kv_list",
             "List keys with optional prefix filter. Returns array of key names. \
-             Use cursor and limit for pagination through large result sets.",
+             Use cursor and limit for pagination through large result sets. \
+             Pass as_of (microsecond timestamp) for time-travel reads.",
             schema!(object {
-                optional: { "prefix": string, "cursor": string, "limit": integer }
+                optional: { "prefix": string, "cursor": string, "limit": integer, "as_of": integer }
             }),
         ),
         ToolDef::new(
             "strata_kv_history",
             "Get all historical versions of a key. Returns array of {value, version, timestamp}. \
-             Useful for auditing changes or implementing undo.",
+             Useful for auditing changes or implementing undo. \
+             Pass as_of (microsecond timestamp) to get history up to that point.",
             schema!(object {
-                required: { "key": string }
+                required: { "key": string },
+                optional: { "as_of": integer }
             }),
         ),
         ToolDef::new(
@@ -108,11 +113,13 @@ pub fn dispatch(
 
         "strata_kv_get" => {
             let key = get_string_arg(&args, "key")?;
+            let as_of = get_optional_u64(&args, "as_of");
 
             let cmd = Command::KvGet {
                 branch: session.branch_id(),
                 space: session.space_id(),
                 key,
+                as_of,
             };
             let output = session.execute(cmd)?;
             Ok(output_to_json(output))
@@ -134,6 +141,7 @@ pub fn dispatch(
             let prefix = get_optional_string(&args, "prefix");
             let cursor = get_optional_string(&args, "cursor");
             let limit = get_optional_u64(&args, "limit");
+            let as_of = get_optional_u64(&args, "as_of");
 
             let cmd = Command::KvList {
                 branch: session.branch_id(),
@@ -141,6 +149,7 @@ pub fn dispatch(
                 prefix,
                 cursor,
                 limit,
+                as_of,
             };
             let output = session.execute(cmd)?;
             Ok(output_to_json(output))
@@ -148,11 +157,13 @@ pub fn dispatch(
 
         "strata_kv_history" => {
             let key = get_string_arg(&args, "key")?;
+            let as_of = get_optional_u64(&args, "as_of");
 
             let cmd = Command::KvGetv {
                 branch: session.branch_id(),
                 space: session.space_id(),
                 key,
+                as_of,
             };
             let output = session.execute(cmd)?;
             Ok(output_to_json(output))
@@ -213,6 +224,7 @@ pub fn dispatch(
                     branch: session.branch_id(),
                     space: session.space_id(),
                     key,
+                    as_of: None,
                 };
                 let output = session.execute(cmd)?;
                 results.push(output_to_json(output));

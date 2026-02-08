@@ -244,6 +244,13 @@ pub fn output_to_json(output: Output) -> JsonValue {
                 "checksums_valid": result.checksums_valid,
             })
         }
+
+        Output::TimeRange { oldest_ts, latest_ts } => {
+            serde_json::json!({
+                "oldest_ts": oldest_ts,
+                "latest_ts": latest_ts,
+            })
+        }
     }
 }
 

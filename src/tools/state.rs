@@ -26,9 +26,11 @@ pub fn tools() -> Vec<ToolDef> {
         ),
         ToolDef::new(
             "strata_state_get",
-            "Get the current value of a state cell. Returns null if cell doesn't exist.",
+            "Get the current value of a state cell. Returns null if cell doesn't exist. \
+             Pass as_of (microsecond timestamp) for time-travel reads.",
             schema!(object {
-                required: { "cell": string }
+                required: { "cell": string },
+                optional: { "as_of": integer }
             }),
         ),
         ToolDef::new(
@@ -55,16 +57,19 @@ pub fn tools() -> Vec<ToolDef> {
         ),
         ToolDef::new(
             "strata_state_list",
-            "List state cell names with optional prefix filter.",
+            "List state cell names with optional prefix filter. \
+             Pass as_of (microsecond timestamp) for time-travel reads.",
             schema!(object {
-                optional: { "prefix": string }
+                optional: { "prefix": string, "as_of": integer }
             }),
         ),
         ToolDef::new(
             "strata_state_history",
-            "Get the full version history for a state cell.",
+            "Get the full version history for a state cell. \
+             Pass as_of (microsecond timestamp) to get history up to that point.",
             schema!(object {
-                required: { "cell": string }
+                required: { "cell": string },
+                optional: { "as_of": integer }
             }),
         ),
     ]
@@ -93,11 +98,13 @@ pub fn dispatch(
 
         "strata_state_get" => {
             let cell = get_string_arg(&args, "cell")?;
+            let as_of = get_optional_u64(&args, "as_of");
 
             let cmd = Command::StateGet {
                 branch: session.branch_id(),
                 space: session.space_id(),
                 cell,
+                as_of,
             };
             let output = session.execute(cmd)?;
             Ok(output_to_json(output))
@@ -147,11 +154,13 @@ pub fn dispatch(
 
         "strata_state_list" => {
             let prefix = get_optional_string(&args, "prefix");
+            let as_of = get_optional_u64(&args, "as_of");
 
             let cmd = Command::StateList {
                 branch: session.branch_id(),
                 space: session.space_id(),
                 prefix,
+                as_of,
             };
             let output = session.execute(cmd)?;
             Ok(output_to_json(output))
@@ -159,11 +168,13 @@ pub fn dispatch(
 
         "strata_state_history" => {
             let cell = get_string_arg(&args, "cell")?;
+            let as_of = get_optional_u64(&args, "as_of");
 
             let cmd = Command::StateGetv {
                 branch: session.branch_id(),
                 space: session.space_id(),
                 cell,
+                as_of,
             };
             let output = session.execute(cmd)?;
             Ok(output_to_json(output))

@@ -860,7 +860,7 @@ checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 [[package]]
 name = "strata-concurrency"
 version = "0.5.1"
-source = "git+https://github.com/stratadb-labs/strata-core?branch=fix%2Fextension-result-handling#1aa1ecb48732dc72206b2bdb7f43baa00eb0b916"
+source = "git+https://github.com/stratadb-labs/strata-core?branch=main#6c2475fc3502d280e9b4eb3f98fa42d0de88cdbd"
 dependencies = [
  "chrono",
  "dashmap",
@@ -877,7 +877,7 @@ dependencies = [
 [[package]]
 name = "strata-core"
 version = "0.5.1"
-source = "git+https://github.com/stratadb-labs/strata-core?branch=fix%2Fextension-result-handling#1aa1ecb48732dc72206b2bdb7f43baa00eb0b916"
+source = "git+https://github.com/stratadb-labs/strata-core?branch=main#6c2475fc3502d280e9b4eb3f98fa42d0de88cdbd"
 dependencies = [
  "bincode",
  "chrono",
@@ -890,7 +890,7 @@ dependencies = [
 [[package]]
 name = "strata-durability"
 version = "0.5.1"
-source = "git+https://github.com/stratadb-labs/strata-core?branch=fix%2Fextension-result-handling#1aa1ecb48732dc72206b2bdb7f43baa00eb0b916"
+source = "git+https://github.com/stratadb-labs/strata-core?branch=main#6c2475fc3502d280e9b4eb3f98fa42d0de88cdbd"
 dependencies = [
  "crc32fast",
  "parking_lot",
@@ -909,7 +909,7 @@ dependencies = [
 [[package]]
 name = "strata-engine"
 version = "0.5.1"
-source = "git+https://github.com/stratadb-labs/strata-core?branch=fix%2Fextension-result-handling#1aa1ecb48732dc72206b2bdb7f43baa00eb0b916"
+source = "git+https://github.com/stratadb-labs/strata-core?branch=main#6c2475fc3502d280e9b4eb3f98fa42d0de88cdbd"
 dependencies = [
  "base64 0.21.7",
  "byteorder",
@@ -934,7 +934,7 @@ dependencies = [
 [[package]]
 name = "strata-executor"
 version = "0.5.1"
-source = "git+https://github.com/stratadb-labs/strata-core?branch=fix%2Fextension-result-handling#1aa1ecb48732dc72206b2bdb7f43baa00eb0b916"
+source = "git+https://github.com/stratadb-labs/strata-core?branch=main#6c2475fc3502d280e9b4eb3f98fa42d0de88cdbd"
 dependencies = [
  "base64 0.21.7",
  "rmp-serde",
@@ -952,7 +952,7 @@ dependencies = [
 [[package]]
 name = "strata-intelligence"
 version = "0.5.1"
-source = "git+https://github.com/stratadb-labs/strata-core?branch=fix%2Fextension-result-handling#1aa1ecb48732dc72206b2bdb7f43baa00eb0b916"
+source = "git+https://github.com/stratadb-labs/strata-core?branch=main#6c2475fc3502d280e9b4eb3f98fa42d0de88cdbd"
 dependencies = [
  "dashmap",
  "once_cell",
@@ -985,7 +985,7 @@ dependencies = [
 [[package]]
 name = "strata-security"
 version = "0.5.1"
-source = "git+https://github.com/stratadb-labs/strata-core?branch=fix%2Fextension-result-handling#1aa1ecb48732dc72206b2bdb7f43baa00eb0b916"
+source = "git+https://github.com/stratadb-labs/strata-core?branch=main#6c2475fc3502d280e9b4eb3f98fa42d0de88cdbd"
 dependencies = [
  "serde",
 ]
@@ -993,7 +993,7 @@ dependencies = [
 [[package]]
 name = "strata-storage"
 version = "0.5.1"
-source = "git+https://github.com/stratadb-labs/strata-core?branch=fix%2Fextension-result-handling#1aa1ecb48732dc72206b2bdb7f43baa00eb0b916"
+source = "git+https://github.com/stratadb-labs/strata-core?branch=main#6c2475fc3502d280e9b4eb3f98fa42d0de88cdbd"
 dependencies = [
  "dashmap",
  "rustc-hash",
@@ -1004,7 +1004,7 @@ dependencies = [
 [[package]]
 name = "stratadb"
 version = "0.5.1"
-source = "git+https://github.com/stratadb-labs/strata-core?branch=fix%2Fextension-result-handling#1aa1ecb48732dc72206b2bdb7f43baa00eb0b916"
+source = "git+https://github.com/stratadb-labs/strata-core?branch=main#6c2475fc3502d280e9b4eb3f98fa42d0de88cdbd"
 dependencies = [
  "serde_json",
  "strata-executor",
