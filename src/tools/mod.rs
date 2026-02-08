@@ -4,6 +4,7 @@
 
 pub mod branch;
 pub mod bundle;
+pub mod config;
 pub mod database;
 pub mod event;
 pub mod json;
@@ -67,6 +68,7 @@ impl ToolRegistry {
         tools.extend(search::tools());
         tools.extend(bundle::tools());
         tools.extend(retention::tools());
+        tools.extend(config::tools());
 
         Self { tools }
     }
@@ -104,6 +106,8 @@ impl ToolRegistry {
             txn::dispatch(session, name, args)
         } else if name.starts_with("strata_search") {
             search::dispatch(session, name, args)
+        } else if name.starts_with("strata_configure_") {
+            config::dispatch(session, name, args)
         } else if name.starts_with("strata_bundle_") {
             bundle::dispatch(session, name, args)
         } else if name.starts_with("strata_retention_") {
