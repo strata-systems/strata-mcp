@@ -982,6 +982,102 @@ fn test_search() {
     assert!(result.is_array());
 }
 
+#[test]
+fn test_search_empty_database() {
+    let mut session = test_session();
+    let registry = ToolRegistry::new();
+
+    let result = call_tool(
+        &mut session,
+        &registry,
+        "strata_search",
+        json!({"query": "nothing"}),
+    );
+    assert_eq!(result, json!([]));
+}
+
+#[test]
+fn test_search_with_primitives_filter() {
+    let mut session = test_session();
+    let registry = ToolRegistry::new();
+
+    call_tool(&mut session, &registry, "strata_kv_put", json!({"key": "k1", "value": "data"}));
+
+    let result = call_tool(
+        &mut session,
+        &registry,
+        "strata_search",
+        json!({"query": "data", "primitives": ["kv"]}),
+    );
+    assert!(result.is_array());
+}
+
+#[test]
+fn test_search_with_mode() {
+    let mut session = test_session();
+    let registry = ToolRegistry::new();
+
+    let result = call_tool(
+        &mut session,
+        &registry,
+        "strata_search",
+        json!({"query": "test", "mode": "keyword"}),
+    );
+    assert!(result.is_array());
+}
+
+#[test]
+fn test_search_with_expand_rerank_disabled() {
+    let mut session = test_session();
+    let registry = ToolRegistry::new();
+
+    let result = call_tool(
+        &mut session,
+        &registry,
+        "strata_search",
+        json!({"query": "test", "expand": false, "rerank": false}),
+    );
+    assert!(result.is_array());
+}
+
+#[test]
+fn test_search_with_time_range() {
+    let mut session = test_session();
+    let registry = ToolRegistry::new();
+
+    let result = call_tool(
+        &mut session,
+        &registry,
+        "strata_search",
+        json!({
+            "query": "test",
+            "time_range": {"start": "2020-01-01T00:00:00Z", "end": "2030-01-01T00:00:00Z"}
+        }),
+    );
+    assert!(result.is_array());
+}
+
+#[test]
+fn test_search_with_all_options() {
+    let mut session = test_session();
+    let registry = ToolRegistry::new();
+
+    let result = call_tool(
+        &mut session,
+        &registry,
+        "strata_search",
+        json!({
+            "query": "hello",
+            "k": 5,
+            "primitives": ["kv"],
+            "mode": "hybrid",
+            "expand": false,
+            "rerank": false
+        }),
+    );
+    assert!(result.is_array());
+}
+
 // =============================================================================
 // Read-Only Mode
 // =============================================================================
@@ -1101,11 +1197,11 @@ fn test_tool_count() {
     let registry = ToolRegistry::new();
     let tools = registry.tools();
 
-    // After adding retention tools: 61 total
+    // After adding time_range + configure_model: 63 total
     assert_eq!(
         tools.len(),
-        61,
-        "Expected 61 tools, got {}. Tools: {:?}",
+        63,
+        "Expected 63 tools, got {}. Tools: {:?}",
         tools.len(),
         tools.iter().map(|t| &t.name).collect::<Vec<_>>()
     );
